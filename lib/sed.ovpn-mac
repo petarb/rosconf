@@ -1,0 +1,3 @@
+/^\/interface ovpn-server server$/,/^\// {
+    s/mac-address=[^ ]+/mac-address=FE:9A:B4:29:06:DD/
+}
