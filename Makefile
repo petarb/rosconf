@@ -11,6 +11,7 @@ RBNODE_PREFIX?=		./
 -include ${RBNODE}.mk
 
 RBNODE_FREF?=		factory
+RBNODE_PAGER?=		less -RFX
 RBHOST?=		192.168.88.1
 RBUSER?=		admin
 RBUSER_PUBKEY?=		id_rsa.pub
@@ -74,8 +75,8 @@ shutdown:; ssh ${RBUSER}@${RBHOST} system $@
 
 # show word-diff of joined export
 wdiff:; git -C ${RBNODE_PREFIX} diff --color-words -- \
-	${RBNAME}.export,join ${RBNAME}.export-verbose,join | less -R
+	${RBNAME}.export,join ${RBNAME}.export-verbose,join | ${RBNODE_PAGER}
 
 # show factory word-diff of joined export
 fwdiff:; git -C ${RBNODE_PREFIX} diff --color-words ${RBNODE_FREF} -- \
-	${RBNAME}.export,join ${RBNAME}.export-verbose,join | less -R
+	${RBNAME}.export,join ${RBNAME}.export-verbose,join | ${RBNODE_PAGER}
