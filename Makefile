@@ -63,8 +63,14 @@ ${RBNODE}.hostkey-rsa:
 	rm $@.pub
 
 ${RBNODE}.rsc: ${RBNODE}.export,f
-	@# Keep the delay or a run-after-reset might leave the device in an
-	@# inconsistent state in about one out of 5 times.  Reason unknown.
+	@#
+	@# On Thu, Jun 20, 2013, normis wrote:
+	@# > yes, [run-after-reset script] needs a delay because it is
+	@# > trying to do actions with interfaces not yet loaded. there
+	@# > is no bug in this case
+	@#
+	@# https://forum.mikrotik.com/viewtopic.php?t=73663#p374221
+	@#
 	@echo :delay 5 >$@
 	@echo /ip ssh import-host-key private-key-file=flash/${RBNAME}.key >>$@
 	@echo /user set admin name=${RBUSER_SET} password=${RBPASS_SET} >>$@
