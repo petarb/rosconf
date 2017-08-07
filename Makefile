@@ -87,11 +87,11 @@ reset: push
 shutdown reboot:; ssh ${RBUSER}@${RBHOST} /system $@
 
 
-# show word-diff of normalised export against latest committed node config
+# show word-diff of normalised export against tagged node config
 wdiff:;  git -C ${RBNODE_PREFIX} diff --color-words ${RBNAME} -- \
 	${RBNAME}.export,n ${RBNAME}.export-verbose,n | ${RBNODE_PAGER}
 
-# show word-diff of normalised export against factory default config
+# show word-diff of normalised export against tagged factory default config
 fwdiff:; git -C ${RBNODE_PREFIX} diff --color-words ${RBNODE_FREF} -- \
 	${RBNAME}.export,n ${RBNAME}.export-verbose,n | ${RBNODE_PAGER}
 
