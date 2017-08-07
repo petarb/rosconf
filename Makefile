@@ -68,9 +68,10 @@ push: ${RBUSER_PUBKEY} ${RBNODE}.hostkey-rsa ${RBNODE}.export,push
 
 reset: push
 	ssh ${RBUSER}@${RBHOST} system reset-configuration \
-		no-defaults=yes run-after-reset=flash/${RBNAME}.rsc
+		no-defaults=yes skip-backup=yes \
+		run-after-reset=flash/${RBNAME}.rsc
 
-shutdown:; ssh ${RBUSER}@${RBHOST} system $@
+shutdown reboot:; ssh ${RBUSER}@${RBHOST} system $@
 
 
 # show word-diff of joined export
