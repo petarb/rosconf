@@ -11,6 +11,7 @@ RBNODE_PREFIX?=		./
 -include ${RBNODE}.mk
 
 RBNODE_FREF?=		factory
+RBNODE_CREF?=		# empty
 RBNODE_PAGER?=		less -RFX
 RBHOST?=		192.168.88.1
 RBUSER?=		admin
@@ -94,7 +95,7 @@ shutdown reboot:; ssh ${RBUSER}@${RBHOST} /system $@
 
 
 # show word-diff of normalised export against tagged node config
-wdiff:;  git -C ${RBNODE_PREFIX} diff --color-words ${RBNAME} -- \
+wdiff:;  git -C ${RBNODE_PREFIX} diff --color-words ${RBNODE_CREF} -- \
 	${RBNAME}.export,n ${RBNAME}.export-verbose,n | ${RBNODE_PAGER}
 
 # show word-diff of normalised export against tagged factory default config
