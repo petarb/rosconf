@@ -11,7 +11,6 @@ RBNODE_PREFIX?=		./
 -include ${RBNODE}.mk
 
 RBNODE_FREF?=		factory
-RBNODE_CREF?=		# empty
 RBNODE_PAGER?=		less -RFX
 RBHOST?=		192.168.88.1
 RBUSER?=		admin
@@ -22,48 +21,33 @@ RBFILTER_PULL?=		unix ros-comment ovpn-mac
 RBFILTER_PUSH?=		dos
 
 
-all: pull ${RBNODE}.hostkey-rsa ${RBNODE}.rsc
+all: pull
 
-pull: ${RBNODE}.export,n
-pull: ${RBNODE}.export-verbose,n
+pull: ${RBNODE}.export
+pull: ${RBNODE}.export-verbose
 
-
-#
-# unmodified ("raw") exports
-
-${RBNODE}.export,r:
+${RBNODE}.export:
 	ssh ${RBUSER}@${RBHOST} /export >$@
-
-${RBNODE}.export-verbose,r:
-	ssh ${RBUSER}@${RBHOST} /export verbose >$@
-
-#
-# filtered ("reproducible") exports
-
-${RBNODE}.export,f:         ${RBNODE}.export,r
-${RBNODE}.export-verbose,f: ${RBNODE}.export-verbose,r
-
-${RBNODE}.export,f ${RBNODE}.export-verbose,f:
-	cp $< $@
 	set -e; for i in ${RBFILTER_PULL}; do \
 		sed -rf lib/sed.$$i -i $@; done
+	lib/join $@ | sort >$@,join
 
-#
-# normalised ("joined") exports
+.PHONY: ${RBNODE}.export
 
-${RBNODE}.export,n:         ${RBNODE}.export,f
-${RBNODE}.export-verbose,n: ${RBNODE}.export-verbose,f
+${RBNODE}.export-verbose:
+	ssh ${RBUSER}@${RBHOST} /export verbose >$@
+	set -e; for i in ${RBFILTER_PULL}; do \
+		sed -rf lib/sed.$$i -i $@; done
+	lib/join $@ | sort >$@,join
 
-${RBNODE}.export,n ${RBNODE}.export-verbose,n:
-	lib/normalise $< >$@
-
+.PHONY: ${RBNODE}.export-verbose
 
 
 ${RBNODE}.hostkey-rsa:
 	ssh-keygen -t rsa -N '' -C $@ -f $@
 	rm $@.pub
 
-${RBNODE}.rsc: ${RBNODE}.export,f
+${RBNODE}.export,push: ${RBNODE}.export
 	@#
 	@# On Thu, Jun 20, 2013, normis wrote:
 	@# > yes, [run-after-reset script] needs a delay because it is
@@ -76,42 +60,30 @@ ${RBNODE}.rsc: ${RBNODE}.export,f
 	@echo /ip ssh import-host-key private-key-file=flash/${RBNAME}.key >>$@
 	@echo /user set admin name=${RBUSER_SET} password=${RBPASS_SET} >>$@
 	@echo /user ssh-keys import public-key-file=flash/${RBUSER_SET}.pubkey user=${RBUSER_SET} >>$@
-	cat $< >>$@
+	cat ${@:,push=} >>$@
 	set -e; for i in ${RBFILTER_PUSH}; do \
 		sed -rf lib/sed.$$i -i $@; done
 
-push: ${RBUSER_PUBKEY} ${RBNODE}.hostkey-rsa ${RBNODE}.rsc
+.PHONY: ${RBNODE}.export,push
+
+push: ${RBUSER_PUBKEY} ${RBNODE}.hostkey-rsa ${RBNODE}.export,push
 	scp ${RBUSER_PUBKEY} ${RBUSER}@${RBHOST}:flash/${RBUSER_SET}.pubkey
 	scp ${RBNODE}.hostkey-rsa ${RBUSER}@${RBHOST}:flash/${RBNAME}.key
-	scp ${RBNODE}.rsc ${RBUSER}@${RBHOST}:flash/${RBNAME}.rsc
+	scp ${RBNODE}.export,push ${RBUSER}@${RBHOST}:flash/${RBNAME}.rsc
+	rm ${RBNODE}.export,push
 
 reset: push
 	ssh ${RBUSER}@${RBHOST} /system reset-configuration \
-		no-defaults=yes \
-		skip-backup=yes \
+		no-defaults=yes skip-backup=yes \
 		run-after-reset=flash/${RBNAME}.rsc
 
 shutdown reboot:; ssh ${RBUSER}@${RBHOST} /system $@
 
 
-# show word-diff of normalised export against tagged node config
-wdiff:;  git -C ${RBNODE_PREFIX} diff --color-words ${RBNODE_CREF} -- \
-	${RBNAME}.export,n ${RBNAME}.export-verbose,n | ${RBNODE_PAGER}
+# show word-diff of joined export
+wdiff:; git -C ${RBNODE_PREFIX} diff --color-words -- \
+	${RBNAME}.export,join ${RBNAME}.export-verbose,join | ${RBNODE_PAGER}
 
-# show word-diff of normalised export against tagged factory default config
+# show factory word-diff of joined export
 fwdiff:; git -C ${RBNODE_PREFIX} diff --color-words ${RBNODE_FREF} -- \
-	${RBNAME}.export,n ${RBNAME}.export-verbose,n | ${RBNODE_PAGER}
-
-
-clean:
-	rm -f \
-		${RBNODE}.export,f ${RBNODE}.export-verbose,f \
-		${RBNODE}.export,n ${RBNODE}.export-verbose,n \
-
-realclean: clean
-	rm -f \
-		${RBNODE}.export,r ${RBNODE}.export-verbose,r \
-		${RBNODE}.rsc
-
-
-.PHONY: all pull push reset shutdown reboot wdiff fwdiff clean realclean
+	${RBNAME}.export,join ${RBNAME}.export-verbose,join | ${RBNODE_PAGER}
