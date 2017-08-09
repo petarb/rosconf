@@ -20,6 +20,7 @@ RBUSER_SET?=		${RBUSER}
 RBPASS_SET?=		${RBUSER}
 RBFILTER_PULL?=		unix ros-comment ovpn-mac
 RBFILTER_PUSH?=		dos
+JOIN_POSTPROCESS?=	sort
 
 
 all: pull
@@ -31,7 +32,7 @@ ${RBNODE}.export:
 	ssh ${RBUSER}@${RBHOST} /export >$@
 	set -e; for i in ${RBFILTER_PULL}; do \
 		sed -rf lib/sed.$$i -i $@; done
-	lib/join $@ | sort >$@,join
+	lib/join $@ | ${JOIN_POSTPROCESS} >$@,join
 
 .PHONY: ${RBNODE}.export
 
@@ -39,7 +40,7 @@ ${RBNODE}.export-verbose:
 	ssh ${RBUSER}@${RBHOST} /export verbose >$@
 	set -e; for i in ${RBFILTER_PULL}; do \
 		sed -rf lib/sed.$$i -i $@; done
-	lib/join $@ | sort >$@,join
+	lib/join $@ | ${JOIN_POSTPROCESS} >$@,join
 
 .PHONY: ${RBNODE}.export-verbose
 
