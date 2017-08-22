@@ -49,7 +49,7 @@ ${RBNODE}.hostkey-rsa:
 	ssh-keygen -t rsa -N '' -C $@ -f $@
 	rm $@.pub
 
-${RBNODE}.export,push: ${RBNODE}.export
+${RBNODE}.export,push:
 	@#
 	@# On Thu, Jun 20, 2013, normis wrote:
 	@# > yes, [run-after-reset script] needs a delay because it is
