@@ -11,6 +11,7 @@ RBNODE_PREFIX?=		./
 -include ${RBNODE}.mk
 
 RBNODE_FREF?=		factory
+RBNODE_CREF?=		# current, empty
 RBNODE_PAGER?=		less -RFX
 RBHOST?=		192.168.88.1
 RBUSER?=		admin
@@ -19,23 +20,25 @@ RBUSER_SET?=		${RBUSER}
 RBPASS_SET?=		${RBUSER}
 RBFILTER_PULL?=		unix ros-comment ovpn-mac
 RBFILTER_PUSH?=		dos
+JOIN_POSTPROCESS?=	sort
 
+# main target
 all: pull
 
 
 ${RBNODE}.export:
-	ssh ${RBUSER}@${RBHOST} export >$@
+	ssh ${RBUSER}@${RBHOST} /export >$@
 	set -e; for i in ${RBFILTER_PULL}; do \
 		sed -rf lib/sed.$$i -i $@; done
-	lib/join $@ | sort >$@,join
+	lib/join $@ | ${JOIN_POSTPROCESS} >$@,join
 
 .PHONY: ${RBNODE}.export
 
 ${RBNODE}.export-verbose:
-	ssh ${RBUSER}@${RBHOST} export verbose >$@
+	ssh ${RBUSER}@${RBHOST} /export verbose >$@
 	set -e; for i in ${RBFILTER_PULL}; do \
 		sed -rf lib/sed.$$i -i $@; done
-	lib/join $@ | sort >$@,join
+	lib/join $@ | ${JOIN_POSTPROCESS} >$@,join
 
 .PHONY: ${RBNODE}.export-verbose
 
@@ -73,15 +76,15 @@ push: ${RBUSER_PUBKEY} ${RBNODE}.hostkey-rsa ${RBNODE}.export,push
 	rm ${RBNODE}.export,push
 
 reset: push
-	ssh ${RBUSER}@${RBHOST} system reset-configuration \
+	ssh ${RBUSER}@${RBHOST} /system reset-configuration \
 		no-defaults=yes skip-backup=yes \
 		run-after-reset=flash/${RBNAME}.rsc
 
-shutdown reboot:; ssh ${RBUSER}@${RBHOST} system $@
+shutdown reboot:; ssh ${RBUSER}@${RBHOST} /system $@
 
 
 # show word-diff of joined export
-wdiff:; git -C ${RBNODE_PREFIX} diff --color-words -- \
+wdiff:; git -C ${RBNODE_PREFIX} diff --color-words ${RBNODE_CREF} -- \
 	${RBNAME}.export,join ${RBNAME}.export-verbose,join | ${RBNODE_PAGER}
 
 # show factory word-diff of joined export
