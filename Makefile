@@ -11,7 +11,7 @@ RBNODE_PREFIX?=		./
 -include ${RBNODE}.mk
 
 RBNODE_FREF?=		factory
-RBNODE_CREF?=		# empty
+RBNODE_CREF?=		# current, empty
 RBNODE_PAGER?=		less -RFX
 RBHOST?=		192.168.88.1
 RBUSER?=		admin
@@ -22,11 +22,9 @@ RBFILTER_PULL?=		unix ros-comment ovpn-mac
 RBFILTER_PUSH?=		dos
 JOIN_POSTPROCESS?=	sort
 
-
+# main target
 all: pull
 
-pull: ${RBNODE}.export
-pull: ${RBNODE}.export-verbose
 
 ${RBNODE}.export:
 	ssh ${RBUSER}@${RBHOST} /export >$@
@@ -43,6 +41,9 @@ ${RBNODE}.export-verbose:
 	lib/join $@ | ${JOIN_POSTPROCESS} >$@,join
 
 .PHONY: ${RBNODE}.export-verbose
+
+pull: ${RBNODE}.export
+pull: ${RBNODE}.export-verbose
 
 
 ${RBNODE}.hostkey-rsa:
