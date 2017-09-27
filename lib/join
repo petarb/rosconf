@@ -1,34 +1,29 @@
 #! /usr/bin/awk -f
 
-func lprint ()
-{
-	if (line) {
-		gsub("\\\\    ", "", line)
-		print line
-		line = ""
-	}
+# line is a comment
+/^#/ {
+	print;
+	next;
 }
 
-BEGIN {
-	while (getline) {
-		if ($0 ~ /^[\t ]*#/) {
-			continue
-		}
-		if ($0 ~ "^/") {
-			lprint()
-			cmd = $0 " "
-			continue
-		}
-		if ($0 ~ "^ ") {
-			sscmd = $0
-			line = line sscmd
-			continue
-		} else {
-			lprint()
-			scmd = $0
-			line = cmd scmd
-			continue
-		}
+# line is a ROS command path
+/^\// {
+	cmdpath = $0;
+	next;
+}
+
+# line is a (potentially partial) ROS command
+{
+	# strip line of leading spaces and trailing backslash, if any
+	sub(/^ +/, "");
+	to_be_continued = sub(/\\$/, "");
+
+	# append stripped line to buffer
+	cmd = cmd $0;
+
+	if (!to_be_continued) {
+		# print (absolute) command
+		print cmdpath " " cmd;
+		cmd = "";
 	}
-	lprint()
 }
