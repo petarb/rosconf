@@ -75,6 +75,7 @@ ${RBNODE}.export,push:
 	@echo /certificate import file-name=flash/${RBNAME}.webkey passphrase="" >>$@
 	@echo /certificate set 0 name=${RBHOST} >>$@
 	@echo /ip service set www-ssl certificate=${RBHOST} >>$@
+	@echo /ip service set api-ssl certificate=${RBHOST} >>$@
 	set -e; for i in ${RSC_PREPEND} ${@:,push=} ${RSC_APPEND}; do \
 		cat $$i >>$@; done
 	set -e; for i in ${RBFILTER_PUSH}; do \
