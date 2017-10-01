@@ -67,12 +67,12 @@ ${RBNODE}.export,push:
 	@#
 	@# https://forum.mikrotik.com/viewtopic.php?t=73663#p374221
 	@#
-	@echo :delay 5 >$@
+	@echo :delay 10 >$@
 	@echo /user set admin name=${RBUSER_SET} password=${RBPASS_SET} >>$@
 	@echo /user ssh-keys import public-key-file=flash/${RBUSER_SET}.pubkey user=${RBUSER_SET} >>$@
 	@echo /ip ssh import-host-key private-key-file=flash/${RBNAME}.hostkey >>$@
-	@echo /certificate import file-name=flash/${RBNAME}.webcert passphrase="" >>$@
-	@echo /certificate import file-name=flash/${RBNAME}.webkey passphrase="" >>$@
+	@echo /certificate import file-name=flash/${RBNAME}.webcert passphrase='""' >>$@
+	@echo /certificate import file-name=flash/${RBNAME}.webkey passphrase='""' >>$@
 	@echo /certificate set 0 name=${RBHOST} >>$@
 	@echo /ip service set www-ssl certificate=${RBHOST} >>$@
 	@echo /ip service set api-ssl certificate=${RBHOST} >>$@
