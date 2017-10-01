@@ -20,7 +20,7 @@ RBUSER_SET?=		${RBUSER}
 RBPASS_SET?=		${RBUSER}
 RBFILTER_PULL?=		unix ros-comment ovpn-mac
 RBFILTER_PUSH?=		dos
-JOIN_POSTPROCESS?=	sort
+JOIN_POSTPROCESS?=	sort | sed /^\#/d
 
 # main target
 all: pull
