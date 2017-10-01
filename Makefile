@@ -53,9 +53,9 @@ ${RBNODE}.hostkey:
 	rm $@.pub
 
 ${RBNODE}.webcert:
-	openssl req -new -newkey rsa:2048 -days 3650 -nodes -x509 \
+	openssl req -x509 -newkey rsa:2048 -days 3650 -nodes \
 		-keyout ${@:cert=key} -out $@ \
-		-subj "/C=LV/CN=${RBHOST}"
+		-subj "/CN=${RBHOST}"
 
 ${RBNODE}.export,push:
 	@#
