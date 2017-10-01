@@ -50,6 +50,11 @@ ${RBNODE}.hostkey:
 	ssh-keygen -t rsa -N '' -C $@ -f $@
 	rm $@.pub
 
+${RBNODE}.webcert:
+	openssl req -new -newkey rsa:2048 -days 3650 -nodes -x509 \
+		-keyout ${@:cert=key} -out $@ \
+		-subj "/C=LV/CN=${RBHOST}"
+
 ${RBNODE}.export,push:
 	@#
 	@# On Thu, Jun 20, 2013, normis wrote:
@@ -69,9 +74,11 @@ ${RBNODE}.export,push:
 
 .PHONY: ${RBNODE}.export,push
 
-push: ${RBUSER_PUBKEY} ${RBNODE}.hostkey ${RBNODE}.export,push
+push: ${RBUSER_PUBKEY} ${RBNODE}.hostkey ${RBNODE}.webcert ${RBNODE}.export,push
 	scp ${RBUSER_PUBKEY} ${RBUSER}@${RBHOST}:flash/${RBUSER_SET}.pubkey
 	scp ${RBNODE}.hostkey ${RBUSER}@${RBHOST}:flash/${RBNAME}.hostkey
+	scp ${RBNODE}.webcert ${RBUSER}@${RBHOST}:flash/${RBNAME}.webcert
+	scp ${RBNODE}.webkey ${RBUSER}@${RBHOST}:flash/${RBNAME}.webkey
 	scp ${RBNODE}.export,push ${RBUSER}@${RBHOST}:flash/${RBNAME}.rsc
 	rm ${RBNODE}.export,push
 
