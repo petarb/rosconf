@@ -65,9 +65,11 @@ ${RBNODE}.export,push:
 	@# https://forum.mikrotik.com/viewtopic.php?t=73663#p374221
 	@#
 	@echo :delay 5 >$@
-	@echo /ip ssh import-host-key private-key-file=flash/${RBNAME}.hostkey >>$@
 	@echo /user set admin name=${RBUSER_SET} password=${RBPASS_SET} >>$@
 	@echo /user ssh-keys import public-key-file=flash/${RBUSER_SET}.pubkey user=${RBUSER_SET} >>$@
+	@echo /ip ssh import-host-key private-key-file=flash/${RBNAME}.hostkey >>$@
+	@echo /certificate import file-name=flash/${RBNAME}.webcert passphrase="" >>$@
+	@echo /certificate import file-name=flash/${RBNAME}.webkey passphrase="" >>$@
 	cat ${@:,push=} >>$@
 	set -e; for i in ${RBFILTER_PUSH}; do \
 		sed -rf lib/sed.$$i -i $@; done
