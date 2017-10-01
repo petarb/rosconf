@@ -21,6 +21,7 @@ RBPASS_SET?=		${RBUSER}
 RBFILTER_PULL?=		unix ros-comment ovpn-mac
 RBFILTER_PUSH?=		dos
 JOIN_POSTPROCESS?=	sort | sed /^\#/d
+RSC_APPEND?=		# ${RBNODE}.bootstrap-rsc
 
 # main target
 all: pull
@@ -70,7 +71,8 @@ ${RBNODE}.export,push:
 	@echo /ip ssh import-host-key private-key-file=flash/${RBNAME}.hostkey >>$@
 	@echo /certificate import file-name=flash/${RBNAME}.webcert passphrase="" >>$@
 	@echo /certificate import file-name=flash/${RBNAME}.webkey passphrase="" >>$@
-	cat ${@:,push=} >>$@
+	set -e; for i in ${@:,push=} ${RSC_APPEND}; do \
+		cat $$i >>$@; done
 	set -e; for i in ${RBFILTER_PUSH}; do \
 		sed -rf lib/sed.$$i -i $@; done
 
