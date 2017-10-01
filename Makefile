@@ -14,6 +14,7 @@ RBNODE_FREF?=		factory
 RBNODE_CREF?=		# current ref
 RBNODE_PAGER?=		less -RFX
 RBHOST?=		192.168.88.1
+RBHOST_SET?=		${RBHOST}
 RBUSER?=		admin
 RBUSER_PUBKEY?=		id_rsa.pub
 RBUSER_SET?=		${RBUSER}
@@ -56,7 +57,7 @@ ${RBNODE}.hostkey:
 ${RBNODE}.webcert:
 	openssl req -x509 -newkey rsa:2048 -days 3650 -nodes \
 		-keyout ${@:cert=key} -out $@ \
-		-subj "/CN=${RBHOST}"
+		-subj /CN=${RBHOST_SET}
 
 ${RBNODE}.export,push:
 	@#
@@ -73,9 +74,9 @@ ${RBNODE}.export,push:
 	@echo /ip ssh import-host-key private-key-file=flash/${RBNAME}.hostkey >>$@
 	@echo /certificate import file-name=flash/${RBNAME}.webcert passphrase='""' >>$@
 	@echo /certificate import file-name=flash/${RBNAME}.webkey passphrase='""' >>$@
-	@echo /certificate set 0 name=${RBHOST} >>$@
-	@echo /ip service set www-ssl certificate=${RBHOST} >>$@
-	@echo /ip service set api-ssl certificate=${RBHOST} >>$@
+	@echo /certificate set 0 name=${RBHOST_SET} >>$@
+	@echo /ip service set www-ssl certificate=${RBHOST_SET} >>$@
+	@echo /ip service set api-ssl certificate=${RBHOST_SET} >>$@
 	set -e; for i in ${RSC_PREPEND} ${@:,push=} ${RSC_APPEND}; do \
 		cat $$i >>$@; done
 	set -e; for i in ${RBFILTER_PUSH}; do \
