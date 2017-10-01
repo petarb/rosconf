@@ -46,7 +46,7 @@ pull: ${RBNODE}.export
 pull: ${RBNODE}.export-verbose
 
 
-${RBNODE}.hostkey-rsa:
+${RBNODE}.hostkey:
 	ssh-keygen -t rsa -N '' -C $@ -f $@
 	rm $@.pub
 
@@ -60,7 +60,7 @@ ${RBNODE}.export,push:
 	@# https://forum.mikrotik.com/viewtopic.php?t=73663#p374221
 	@#
 	@echo :delay 5 >$@
-	@echo /ip ssh import-host-key private-key-file=flash/${RBNAME}.key >>$@
+	@echo /ip ssh import-host-key private-key-file=flash/${RBNAME}.hostkey >>$@
 	@echo /user set admin name=${RBUSER_SET} password=${RBPASS_SET} >>$@
 	@echo /user ssh-keys import public-key-file=flash/${RBUSER_SET}.pubkey user=${RBUSER_SET} >>$@
 	cat ${@:,push=} >>$@
@@ -69,9 +69,9 @@ ${RBNODE}.export,push:
 
 .PHONY: ${RBNODE}.export,push
 
-push: ${RBUSER_PUBKEY} ${RBNODE}.hostkey-rsa ${RBNODE}.export,push
+push: ${RBUSER_PUBKEY} ${RBNODE}.hostkey ${RBNODE}.export,push
 	scp ${RBUSER_PUBKEY} ${RBUSER}@${RBHOST}:flash/${RBUSER_SET}.pubkey
-	scp ${RBNODE}.hostkey-rsa ${RBUSER}@${RBHOST}:flash/${RBNAME}.key
+	scp ${RBNODE}.hostkey ${RBUSER}@${RBHOST}:flash/${RBNAME}.hostkey
 	scp ${RBNODE}.export,push ${RBUSER}@${RBHOST}:flash/${RBNAME}.rsc
 	rm ${RBNODE}.export,push
 
