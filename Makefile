@@ -71,6 +71,8 @@ ${RBNODE}.export,push:
 	@echo /ip ssh import-host-key private-key-file=flash/${RBNAME}.hostkey >>$@
 	@echo /certificate import file-name=flash/${RBNAME}.webcert passphrase="" >>$@
 	@echo /certificate import file-name=flash/${RBNAME}.webkey passphrase="" >>$@
+	@echo /certificate set 0 name=${RBHOST} >>$@
+	@echo /ip service set www-ssl certificate=${RBHOST} >>$@
 	set -e; for i in ${@:,push=} ${RSC_APPEND}; do \
 		cat $$i >>$@; done
 	set -e; for i in ${RBFILTER_PUSH}; do \
