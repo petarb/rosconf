@@ -21,6 +21,7 @@ RBPASS_SET?=		${RBUSER}
 RBFILTER_PULL?=		unix ros-comment ovpn-mac
 RBFILTER_PUSH?=		dos
 JOIN_POSTPROCESS?=	sort | sed /^\#/d
+RSC_PREPEND?=		# list of rsc-files
 RSC_APPEND?=		# list of rsc-files
 FILES_TO_PUSH?=		# list of files
 
@@ -74,7 +75,7 @@ ${RBNODE}.export,push:
 	@echo /certificate import file-name=flash/${RBNAME}.webkey passphrase="" >>$@
 	@echo /certificate set 0 name=${RBHOST} >>$@
 	@echo /ip service set www-ssl certificate=${RBHOST} >>$@
-	set -e; for i in ${@:,push=} ${RSC_APPEND}; do \
+	set -e; for i in ${RSC_PREPEND} ${@:,push=} ${RSC_APPEND}; do \
 		cat $$i >>$@; done
 	set -e; for i in ${RBFILTER_PUSH}; do \
 		sed -rf lib/sed.$$i -i $@; done
