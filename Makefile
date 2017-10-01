@@ -11,7 +11,7 @@ RBNODE_PREFIX?=		./
 -include ${RBNODE}.mk
 
 RBNODE_FREF?=		factory
-RBNODE_CREF?=		# current, empty
+RBNODE_CREF?=		# current ref
 RBNODE_PAGER?=		less -RFX
 RBHOST?=		192.168.88.1
 RBUSER?=		admin
@@ -21,7 +21,8 @@ RBPASS_SET?=		${RBUSER}
 RBFILTER_PULL?=		unix ros-comment ovpn-mac
 RBFILTER_PUSH?=		dos
 JOIN_POSTPROCESS?=	sort | sed /^\#/d
-RSC_APPEND?=		# ${RBNODE}.bootstrap-rsc
+RSC_APPEND?=		# list of rsc-files
+FILES_TO_PUSH?=		# list of files
 
 # main target
 all: pull
@@ -86,6 +87,8 @@ push: ${RBUSER_PUBKEY} ${RBNODE}.hostkey ${RBNODE}.webcert ${RBNODE}.export,push
 	scp ${RBNODE}.webcert ${RBUSER}@${RBHOST}:flash/${RBNAME}.webcert
 	scp ${RBNODE}.webkey ${RBUSER}@${RBHOST}:flash/${RBNAME}.webkey
 	scp ${RBNODE}.export,push ${RBUSER}@${RBHOST}:flash/${RBNAME}.rsc
+	set -e; for i in ${FILES_TO_PUSH}; do \
+		scp $$i ${RBUSER}@${RBHOST}:flash/; done
 	rm ${RBNODE}.export,push
 
 reset: push
