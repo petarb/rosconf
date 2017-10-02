@@ -1,4 +1,4 @@
-# init-delay.rsc
+# delay.rsc
 #
 # On Thu, Jun 20, 2013, normis wrote:
 # > yes, [run-after-reset script] needs a delay because it is
