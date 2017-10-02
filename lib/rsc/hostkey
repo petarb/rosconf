@@ -1,0 +1,4 @@
+# hostkey.rsc
+#
+/ip ssh import-host-key private-key-file=flash/${RBNAME}.hostkey
+

@@ -1,0 +1,11 @@
+# init-delay.rsc
+#
+# On Thu, Jun 20, 2013, normis wrote:
+# > yes, [run-after-reset script] needs a delay because it is
+# > trying to do actions with interfaces not yet loaded. there
+# > is no bug in this case
+#
+# https://forum.mikrotik.com/viewtopic.php?t=73663#p374221
+#
+:delay 10
+

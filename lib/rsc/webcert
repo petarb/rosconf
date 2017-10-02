@@ -1,0 +1,8 @@
+# webcert.rsc
+#
+/certificate import file-name=flash/${RBNAME}.webcert passphrase=""
+/certificate import file-name=flash/${RBNAME}.webkey passphrase=""
+/certificate set 0 name=${RBHOST_SET}
+/ip service set www-ssl certificate=${RBHOST_SET}
+/ip service set api-ssl certificate=${RBHOST_SET}
+

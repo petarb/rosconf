@@ -1,0 +1,24 @@
+#! /bin/sh
+
+orig=$(dirname $0)
+arg=$1
+file=-
+
+if [ -n "$arg" ]; then
+	if [ ! -f "$arg" ]; then
+		arg=$orig/rsc/$arg
+	fi
+	if [ ! -f "$arg" ]; then
+		exit
+	fi
+	file=$arg
+fi
+
+exec awk '{
+	varpat = "\\$\\{[A-Za-z_][A-Za-z0-9_]+\\}"
+	while (match($0, varpat)) {
+		key = substr($0, RSTART+2, RLENGTH-3)
+		sub(varpat, ENVIRON[key])
+	}
+	print
+}' "$file"

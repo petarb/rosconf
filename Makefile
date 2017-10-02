@@ -19,11 +19,17 @@ RBUSER?=		admin
 RBUSER_PUBKEY?=		id_rsa.pub
 RBUSER_SET?=		${RBUSER}
 RBPASS_SET?=		${RBUSER}
-RBFILTER_PULL?=		unix ros-comment ovpn-mac
-RBFILTER_PUSH?=		dos
-JOIN_POSTPROCESS?=	sort | sed /^\#/d
-RSC_APPEND?=		# list of rsc-files
-FILES_TO_PUSH?=		# list of files
+
+JOIN_FILTER?=		sort | sed /^\#/d
+PULL_FILTER?=		unix ros-comment ovpn-mac
+PUSH_FILTER?=		dos
+PUSH_APPEND?=		# list of rsc files
+PUSH_PREPEND?=		delay admin hostkey webcert
+PUSH_FILES?=		${RBUSER_PUBKEY} ${RBNODE}.hostkey \
+			${RBNODE}.webcert ${RBNODE}.webkey
+
+# rscat needs all the above
+export
 
 # main target
 all: pull
@@ -31,17 +37,17 @@ all: pull
 
 ${RBNODE}.export:
 	ssh ${RBUSER}@${RBHOST} /export >$@
-	set -e; for i in ${RBFILTER_PULL}; do \
+	set -e; for i in ${PULL_FILTER}; do \
 		sed -rf lib/sed.$$i -i $@; done
-	lib/join $@ | ${JOIN_POSTPROCESS} >$@,join
+	lib/join $@ | ${JOIN_FILTER} >$@,join
 
 .PHONY: ${RBNODE}.export
 
 ${RBNODE}.export-verbose:
 	ssh ${RBUSER}@${RBHOST} /export verbose >$@
-	set -e; for i in ${RBFILTER_PULL}; do \
+	set -e; for i in ${PULL_FILTER}; do \
 		sed -rf lib/sed.$$i -i $@; done
-	lib/join $@ | ${JOIN_POSTPROCESS} >$@,join
+	lib/join $@ | ${JOIN_FILTER} >$@,join
 
 .PHONY: ${RBNODE}.export-verbose
 
@@ -58,45 +64,25 @@ ${RBNODE}.webcert:
 		-keyout ${@:cert=key} -out $@ \
 		-subj /CN=${RBHOST_SET}
 
+${RBNODE}.webkey: ${RBNODE}.webcert
+
 ${RBNODE}.export,push:
-	@#
-	@# On Thu, Jun 20, 2013, normis wrote:
-	@# > yes, [run-after-reset script] needs a delay because it is
-	@# > trying to do actions with interfaces not yet loaded. there
-	@# > is no bug in this case
-	@#
-	@# https://forum.mikrotik.com/viewtopic.php?t=73663#p374221
-	@#
-	@echo :delay 10 >$@
-	@echo /user set admin name=${RBUSER_SET} password=${RBPASS_SET} >>$@
-	@echo /user ssh-keys import public-key-file=flash/${RBUSER_SET}.pubkey user=${RBUSER_SET} >>$@
-	@echo /ip ssh import-host-key private-key-file=flash/${RBNAME}.hostkey >>$@
-	@echo /certificate import file-name=flash/${RBNAME}.webcert passphrase='""' >>$@
-	@echo /certificate import file-name=flash/${RBNAME}.webkey passphrase='""' >>$@
-	@echo /certificate set 0 name=${RBHOST_SET} >>$@
-	@echo /ip service set www-ssl certificate=${RBHOST_SET} >>$@
-	@echo /ip service set api-ssl certificate=${RBHOST_SET} >>$@
-	set -e; for i in ${@:,push=} ${RSC_APPEND}; do \
-		cat $$i >>$@; done
-	set -e; for i in ${RBFILTER_PUSH}; do \
+	set -e; for i in ${PUSH_PREPEND} ${@:,push=} ${PUSH_APPEND}; do \
+		lib/rscat $$i; done >$@
+	set -e; for i in ${PUSH_FILTER}; do \
 		sed -rf lib/sed.$$i -i $@; done
 
 .PHONY: ${RBNODE}.export,push
 
-push: ${RBUSER_PUBKEY} ${RBNODE}.hostkey ${RBNODE}.webcert ${RBNODE}.export,push
-	scp ${RBUSER_PUBKEY} ${RBUSER}@${RBHOST}:flash/${RBUSER_SET}.pubkey
-	scp ${RBNODE}.hostkey ${RBUSER}@${RBHOST}:flash/${RBNAME}.hostkey
-	scp ${RBNODE}.webcert ${RBUSER}@${RBHOST}:flash/${RBNAME}.webcert
-	scp ${RBNODE}.webkey ${RBUSER}@${RBHOST}:flash/${RBNAME}.webkey
-	scp ${RBNODE}.export,push ${RBUSER}@${RBHOST}:flash/${RBNAME}.rsc
-	set -e; for i in ${FILES_TO_PUSH}; do \
+push: ${PUSH_FILES} ${RBNODE}.export,push
+	set -e; for i in ${PUSH_FILES} ${RBNODE}.export,push; do \
 		scp $$i ${RBUSER}@${RBHOST}:flash/; done
 	rm ${RBNODE}.export,push
 
 reset: push
 	ssh ${RBUSER}@${RBHOST} /system reset-configuration \
 		no-defaults=yes skip-backup=yes \
-		run-after-reset=flash/${RBNAME}.rsc
+		run-after-reset=flash/${RBNAME}.export,push
 
 shutdown reboot:; ssh ${RBUSER}@${RBHOST} /system $@
 
