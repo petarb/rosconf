@@ -69,23 +69,23 @@ ${RBNODE}.webcert:
 
 ${RBNODE}.webkey: ${RBNODE}.webcert
 
-${RBNODE}.export,push:
-	set -e; for i in ${PUSH_PREPEND} ${@:,push=} ${PUSH_APPEND}; do \
+${RBNODE}.rsc:
+	set -e; for i in ${PUSH_PREPEND} ${RBNODE}.export ${PUSH_APPEND}; do \
 		lib/rscat $$i; done >$@
 	set -e; for i in ${PUSH_FILTER}; do \
 		sed -rf lib/sed.$$i -i $@; done
 
-.PHONY: ${RBNODE}.export,push
+.PHONY: ${RBNODE}.rsc
 
-push: ${PUSH_FILES} ${RBNODE}.export,push
+push: ${PUSH_FILES} ${RBNODE}.rsc
 	set -e; for i in $> $^; do \
 		scp $$i ${RBUSER}@${RBHOST}:flash/; done
-	rm ${RBNODE}.export,push
+	rm ${RBNODE}.rsc
 
 reset: push
 	ssh ${RBUSER}@${RBHOST} /system reset-configuration \
 		no-defaults=yes skip-backup=yes \
-		run-after-reset=flash/${RBNAME}.export,push
+		run-after-reset=flash/${RBNAME}.rsc
 
 shutdown reboot:; ssh ${RBUSER}@${RBHOST} /system $@
 
