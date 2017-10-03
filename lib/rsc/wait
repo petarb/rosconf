@@ -1,0 +1,36 @@
+# wait.rsc
+#
+# On Thu, Jun 20, 2013, normis wrote:
+# > yes, [run-after-reset script] needs a delay because it is
+# > trying to do actions with interfaces not yet loaded. there
+# > is no bug in this case
+#
+# https://forum.mikrotik.com/viewtopic.php?t=73663#p374221
+#
+# The following script is taken from the RouterBOARD 962UiGS-5HacT2HnT (hAP ac)
+# default configuration (`/system default-configuration print'), with a
+# configurable interface on which the default IPv4 address is configured in
+# case of failure.
+#
+{
+:local count 0;
+:while ([/interface ethernet find] = "") do={
+	:if ($count = 30) do={
+		:log warning "Unable to find ethernet interfaces";
+		/quit;
+	}
+	:delay 1s;
+	:set count ($count +1);
+}
+:set count 0;
+:while ([/interface wireless print count-only] < 2) do={
+	:set count ($count +1);
+	:if ($count = 30) do={
+		:log warning "Unable to find wireless interface(s)";
+		/ip address add address=192.168.88.1/24 interface=${RSC_WAIT_FAIL_IFACE};
+		/quit
+	}
+	:delay 1s;
+}
+}
+
