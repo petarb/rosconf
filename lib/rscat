@@ -15,10 +15,13 @@ if [ -n "$arg" ]; then
 fi
 
 exec awk '{
-	varpat = "\\$\\{[A-Za-z_][A-Za-z0-9_]*\\}"
-	while (match($0, varpat)) {
-		key = substr($0, RSTART+2, RLENGTH-3)
-		sub(varpat, ENVIRON[key])
+	line = $0
+	while (match(line, /\$\{[^}]+\}/)) {
+		 beg = substr(line, 1, RSTART-1)
+		 var = substr(line, RSTART, RLENGTH)
+		line = substr(line, RSTART+RLENGTH)
+		printf("%s", beg)
+		system("sh -c '\''printf \""var"\"'\''")
 	}
-	print
+	print line
 }' "$file"

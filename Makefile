@@ -25,7 +25,7 @@ PULL_FILTER?=		unix ros-comment ovpn-mac
 PUSH_FILTER?=		dos
 PUSH_APPEND?=		# list of rsc files
 PUSH_PREPEND?=		delay admin hostkey webcert
-PUSH_FILES?=		${RBNODE}.pubkey ${RBNODE}.hostkey \
+PUSH_FILES?=		${RBUSER_PUBKEY} ${RBNODE}.hostkey \
 			${RBNODE}.webcert ${RBNODE}.webkey
 
 # rscat needs all the above
@@ -54,9 +54,6 @@ ${RBNODE}.export-verbose:
 pull: ${RBNODE}.export
 pull: ${RBNODE}.export-verbose
 
-
-${RBNODE}.pubkey: ${RBUSER_PUBKEY}
-	cp $> $^ $@
 
 ${RBNODE}.hostkey:
 	ssh-keygen -t rsa -N '' -C $@ -f $@
