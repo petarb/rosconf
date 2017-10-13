@@ -20,13 +20,20 @@ RBUSER_PUBKEY?=		id_rsa.pub
 RBUSER_SET?=		${RBUSER}
 RBPASS_SET?=		${RBUSER}
 
-JOIN_FILTER?=		sort | sed /^\#/d
-PULL_FILTER?=		unix ros-comment ovpn-mac
-PUSH_FILTER?=		dos
-PUSH_APPEND?=		# list of rsc files
-PUSH_PREPEND?=		delay admin hostkey webcert
-PUSH_FILES?=		${RBUSER_PUBKEY} ${RBNODE}.hostkey \
+DEF_JOIN_FILTER?=	sort | sed /^\#/d
+DEF_PULL_FILTER?=	unix ros-comment ovpn-mac
+DEF_PUSH_FILTER?=	dos
+DEF_PUSH_APPEND?=	# list of rsc files
+DEF_PUSH_PREPEND?=	delay admin hostkey webcert
+DEF_PUSH_FILES?=	${RBUSER_PUBKEY} ${RBNODE}.hostkey \
 			${RBNODE}.webcert ${RBNODE}.webkey
+
+JOIN_FILTER?=		${DEF_JOIN_FILTER}
+PULL_FILTER?=		${DEF_PULL_FILTER}
+PUSH_FILTER?=		${DEF_PUSH_FILTER}
+PUSH_APPEND?=		${DEF_PUSH_APPEND}
+PUSH_PREPEND?=		${DEF_PUSH_PREPEND}
+PUSH_FILES?=		${DEF_PUSH_FILES}
 
 # rscat needs all the above
 export
