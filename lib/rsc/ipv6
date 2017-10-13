@@ -1,0 +1,4 @@
+# ipv6.rsc
+#
+/system package ${RSC_IPV6:-enable} ipv6
+
