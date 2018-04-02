@@ -43,7 +43,7 @@ all: pull
 ${RBNODE}.export:
 	ssh ${RBUSER}@${RBHOST} /export >$@
 	set -e; for i in ${PULL_FILTER}; do \
-		sed -rf lib/sed.$$i -i $@; done
+		sed -rf lib/sed/$$i -i $@; done
 	lib/join $@ >$@,join
 
 .PHONY: ${RBNODE}.export
@@ -51,7 +51,7 @@ ${RBNODE}.export:
 ${RBNODE}.export-verbose:
 	ssh ${RBUSER}@${RBHOST} /export verbose >$@
 	set -e; for i in ${PULL_FILTER}; do \
-		sed -rf lib/sed.$$i -i $@; done
+		sed -rf lib/sed/$$i -i $@; done
 	lib/join $@ >$@,join
 
 .PHONY: ${RBNODE}.export-verbose
@@ -75,7 +75,7 @@ ${RBNODE}.rsc:
 	set -e; for i in ${PUSH_PREPEND} ${RBNODE}.export ${PUSH_APPEND}; do \
 		lib/rscat $$i; done >$@
 	set -e; for i in ${PUSH_FILTER}; do \
-		sed -rf lib/sed.$$i -i $@; done
+		sed -rf lib/sed/$$i -i $@; done
 
 .PHONY: ${RBNODE}.rsc
 
