@@ -20,7 +20,6 @@ RBUSER_PUBKEY?=		id_rsa.pub
 RBUSER_SET?=		${RBUSER}
 RBPASS_SET?=		${RBUSER}
 
-DEF_JOIN_FILTER?=	sort | sed /^\#/d
 DEF_PULL_FILTER?=	unix ros-comment ovpn-mac
 DEF_PUSH_FILTER?=	dos
 DEF_PUSH_APPEND?=	# list of rsc files
@@ -28,7 +27,6 @@ DEF_PUSH_PREPEND?=	delay admin hostkey webcert
 DEF_PUSH_FILES?=	${RBUSER_PUBKEY} ${RBNODE}.hostkey \
 			${RBNODE}.webcert ${RBNODE}.webkey
 
-JOIN_FILTER?=		${DEF_JOIN_FILTER}
 PULL_FILTER?=		${DEF_PULL_FILTER}
 PUSH_FILTER?=		${DEF_PUSH_FILTER}
 PUSH_APPEND?=		${DEF_PUSH_APPEND}
@@ -46,7 +44,7 @@ ${RBNODE}.export:
 	ssh ${RBUSER}@${RBHOST} /export >$@
 	set -e; for i in ${PULL_FILTER}; do \
 		sed -rf lib/sed.$$i -i $@; done
-	lib/join $@ | ${JOIN_FILTER} >$@,join
+	lib/join $@ >$@,join
 
 .PHONY: ${RBNODE}.export
 
@@ -54,7 +52,7 @@ ${RBNODE}.export-verbose:
 	ssh ${RBUSER}@${RBHOST} /export verbose >$@
 	set -e; for i in ${PULL_FILTER}; do \
 		sed -rf lib/sed.$$i -i $@; done
-	lib/join $@ | ${JOIN_FILTER} >$@,join
+	lib/join $@ >$@,join
 
 .PHONY: ${RBNODE}.export-verbose
 
