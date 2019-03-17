@@ -20,7 +20,7 @@ RBUSER_PUBKEY?=		id_rsa.pub
 RBUSER_SET?=		${RBUSER}
 RBPASS_SET?=		${RBUSER}
 
-DEF_PULL_FILTER?=	unix ros-comment ovpn-mac
+DEF_PULL_FILTER?=	unix ros-comment
 DEF_PUSH_FILTER?=	dos
 DEF_PUSH_APPEND?=	# list of rsc files
 DEF_PUSH_PREPEND?=	delay admin hostkey webcert
