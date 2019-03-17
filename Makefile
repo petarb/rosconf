@@ -41,23 +41,13 @@ all: pull
 
 
 ${RBNODE}.export:
-	ssh ${RBUSER}@${RBHOST} /export >$@
+	ssh ${RBUSER}@${RBHOST} /export terse >$@
 	set -e; for i in ${PULL_FILTER}; do \
 		sed -rf lib/sed/$$i -i $@; done
-	lib/join $@ >$@,join
 
 .PHONY: ${RBNODE}.export
 
-${RBNODE}.export-verbose:
-	ssh ${RBUSER}@${RBHOST} /export verbose >$@
-	set -e; for i in ${PULL_FILTER}; do \
-		sed -rf lib/sed/$$i -i $@; done
-	lib/join $@ >$@,join
-
-.PHONY: ${RBNODE}.export-verbose
-
 pull: ${RBNODE}.export
-pull: ${RBNODE}.export-verbose
 
 
 ${RBNODE}.hostkey:
@@ -92,10 +82,10 @@ reset: push
 shutdown reboot:; ssh ${RBUSER}@${RBHOST} /system $@
 
 
-# show word-diff of joined export
+# show word-diff of export
 wdiff:; git -C ${RBNODE_PREFIX} diff --color-words ${RBNODE_CREF} -- \
-	${RBNAME}.export,join ${RBNAME}.export-verbose,join | ${RBNODE_PAGER}
+	${RBNAME}.export | ${RBNODE_PAGER}
 
-# show factory word-diff of joined export
+# show factory word-diff of export
 fwdiff:; git -C ${RBNODE_PREFIX} diff --color-words ${RBNODE_FREF} -- \
-	${RBNAME}.export,join ${RBNAME}.export-verbose,join | ${RBNODE_PAGER}
+	${RBNAME}.export | ${RBNODE_PAGER}
