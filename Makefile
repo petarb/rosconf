@@ -75,11 +75,11 @@ push: ${PUSH_FILES} ${RBNODE}.rsc
 	rm ${RBNODE}.rsc
 
 reset: push
-	ssh ${RBUSER}@${RBHOST} /system reset-configuration \
+	-ssh ${RBUSER}@${RBHOST} /system reset-configuration \
 		no-defaults=yes skip-backup=yes \
 		run-after-reset=flash/${RBNAME}.rsc
 
-shutdown reboot:; ssh ${RBUSER}@${RBHOST} /system $@
+shutdown reboot:; -ssh ${RBUSER}@${RBHOST} /system $@
 
 
 # show word-diff of export
