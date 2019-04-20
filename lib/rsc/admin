@@ -1,5 +1,9 @@
 # admin.rsc
 #
-/user set admin name=${RBUSER_SET} password=${RBPASS_SET}
+/user set admin password=${RBPASS_SET}
+:if ("${RBUSER_SET}" != "admin") do={
+	/user add name=${RBUSER_SET} password=${RBPASS_SET} group=full
+	/user remove admin
+}
 /user ssh-keys import public-key-file=flash/${RBUSER_PUBKEY##*/} user=${RBUSER_SET}
 
